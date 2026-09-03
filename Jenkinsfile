@@ -36,13 +36,10 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                dir('Devops-proj') {
-                    bat 'docker build -t tanmaigawas/flask-app:latest .'
-                }
-            }
-        }
-
+    steps {
+        bat 'docker build -t tanmaigawas/flask-app:latest .'
+    }
+}
         stage('Push to Docker Hub') {
     steps {
         withCredentials([
