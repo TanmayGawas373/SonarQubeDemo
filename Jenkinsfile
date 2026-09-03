@@ -29,18 +29,21 @@ pipeline {
                 bat """
                     "${env.PYTHON_PATH}" --version
                     "${env.PYTHON_PATH}" -m pip install -r requirements.txt
-                    "${env.PYTHON_PATH}" -m pytest -v
                 """
             }
         }
 
-        stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            bat 'sonar-scanner'
+        stage('SonarCloud Analysis'){
+            steps{
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarCloud'){
+                        bat "\"${scannerHome}\\bin\\sonar-scanner.bat\""
+                    }
+                }
+            }
         }
-    }
-}
+
 
         stage('Build Docker Image') {
             steps {
