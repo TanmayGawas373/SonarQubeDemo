@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DATABASE_URI=mysql+pymysql://root:1234@mysql-container/lms_db
+      - DEV_DATABASE_URI=mysql+pymysql://root:1234@mysql-container/lms_db
+      - TEST_DATABASE_URI=sqlite:///test.db
+      - EMAIL=${EMAIL}
+      - APP_PASSWORD=${APP_PASSWORD}
+    networks:
+      - lms-network
+    restart: unless-stopped
+
+networks:
+  lms-network:
+    external: true
+    name: lms-network

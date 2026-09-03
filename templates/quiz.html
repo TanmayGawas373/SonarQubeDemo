@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} — Quiz{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">{{ quiz.title }}</h1>
+                <p class="page-subtitle">Please answer all questions carefully before submitting.</p>
+            </div>
+            <div class="page-actions">
+                <a href="{{ url_for('quiz.view_quizzes', course_id=course_id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Quizzes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form method="post" action="{{ url_for('quiz.attempt_quiz', course_id=course_id, quiz_id=quiz.id) }}" class="d-flex flex-column gap-4">
+        {% for q in questions %}
+        <div class="card p-4 shadow-sm">
+            <div class="d-flex align-items-start gap-2 mb-3">
+                <span class="badge badge-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: var(--text-sm);">
+                    {{ loop.index }}
+                </span>
+                <h5 class="card-header-title m-0 pt-1" style="font-size: var(--text-lg); line-height: 1.4;">
+                    {{ q.prompt }}
+                </h5>
+            </div>
+            
+            {% set opts = q.get_options() %}
+            <div class="options-list d-flex flex-column gap-2 mt-2">
+                {% for opt in opts %}
+                <label class="d-flex align-items-center p-3 rounded border border-light cursor-pointer hover-bg-light transition-all" style="cursor: pointer;">
+                    <input type="radio" name="q{{ q.id }}" value="{{ loop.index0 }}" class="form-check-input me-3" required style="width: 1.15rem; height: 1.15rem;">
+                    <span class="text-secondary" style="font-size: var(--text-base);">{{ opt.option }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-end mt-2">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-send-fill me-2"></i> Submit Attempt
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

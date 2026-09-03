@@ -1,0 +1,5 @@
+add both v1->form based and v2->json based(without templates)
+assymetric encryption
+use swagger for documentation for project
+caching
+responsiveness (ui different for mobile and desktop)

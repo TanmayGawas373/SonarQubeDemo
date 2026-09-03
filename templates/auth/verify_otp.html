@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ===== Auth Page Layout ===== */
+    .auth-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        background-color: #f4f5f7;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem 2.25rem;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    /* ===== Header ===== */
+    .auth-header {
+        text-align: left;
+        margin-bottom: 1.75rem;
+    }
+
+    .auth-logo {
+        font-size: 1.5rem;
+        color: #2563eb;
+        margin-bottom: 0.75rem;
+    }
+
+    .auth-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: #111827;
+    }
+
+    .auth-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    /* ===== Form ===== */
+    .auth-form .form-group {
+        margin-bottom: 1.1rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.4rem;
+        display: inline-block;
+    }
+
+    .text-muted {
+        font-weight: 400;
+        font-size: 0.85rem;
+    }
+
+    /* ===== Input group (icon + field) ===== */
+    .auth-form .input-group {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .auth-form .input-group:focus-within {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .auth-form .input-group-text {
+        background: #f9fafb;
+        border: none;
+        border-right: 1px solid #e5e7eb;
+        color: #9ca3af;
+        width: 42px;
+        justify-content: center;
+    }
+
+    .auth-form .form-control {
+        border: none;
+        box-shadow: none;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .auth-form .form-control:focus {
+        box-shadow: none;
+    }
+
+    .form-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 0.35rem;
+    }
+
+    /* ===== OTP Input ===== */
+    .otp-inputs {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .otp-input {
+        width: 48px;
+        height: 56px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .otp-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* ===== Resend Timer ===== */
+    .resend-timer {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .resend-link {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .resend-link:hover:not(.disabled) {
+        text-decoration: underline;
+    }
+
+    .resend-link.disabled {
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    /* ===== Submit button ===== */
+    .auth-form .btn-primary {
+        width: 100%;
+        padding: 0.7rem;
+        font-weight: 600;
+        border-radius: 8px;
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .auth-form .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    /* ===== Footer ===== */
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .auth-footer a {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card panel">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h1 class="auth-title">Verify Your Email</h1>
+            <p class="auth-subtitle">We've sent a 6-digit code to <strong>{{ email }}</strong></p>
+        </div>
+
+        <form action="{{ url_for('auth.verify_otp_page') }}" method="post" class="auth-form" novalidate>
+            <input type="hidden" name="email" value="{{ email }}">
+
+            <div class="otp-inputs" id="otpInputs">
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+                <input type="text" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required>
+            </div>
+            <input type="hidden" name="otp" id="otpHidden" value="">
+
+            <div class="resend-timer">
+                <span id="timerText">Resend code in <span id="countdown">60</span>s</span>
+                <a href="#" id="resendLink" class="resend-link disabled" onclick="resendOtp(event)">Resend code</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg mt-2">
+                <i class="bi bi-check-circle me-1"></i> Verify
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Didn't receive the code? <a href="#" onclick="resendOtp(event)">Resend</a></p>
+            <p><a href="{{ url_for('auth.register') }}">Back to registration</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // OTP Input Handling
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const otpHidden = document.getElementById('otpHidden');
+    const resendLink = document.getElementById('resendLink');
+    const countdownEl = document.getElementById('countdown');
+    const timerText = document.getElementById('timerText');
+
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (!/^\d$/.test(value)) {
+                e.target.value = '';
+                return;
+            }
+            otpHidden.value = Array.from(otpInputs).map(i => i.value).join('');
+            if (index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = pasted.match(/\d/g) || [];
+            digits.forEach((digit, i) => {
+                if (i < otpInputs.length) {
+                    otpInputs[i].value = digit;
+                }
+            });
+            otpHidden.value = Array.from(otpInputs).map(i => i.value).join('');
+            const lastFilled = digits.length < otpInputs.length ? digits.length : otpInputs.length - 1;
+            otpInputs[lastFilled].focus();
+        });
+    });
+
+    // Focus first input on load
+    otpInputs[0].focus();
+
+    // Resend OTP Timer
+    let countdown = 60;
+    let timerInterval;
+
+    function startTimer() {
+        resendLink.classList.add('disabled');
+        timerText.style.display = 'inline';
+        countdown = 60;
+        countdownEl.textContent = countdown;
+        timerInterval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(timerInterval);
+                resendLink.classList.remove('disabled');
+                timerText.style.display = 'none';
+            }
+        }, 1000);
+    }
+
+    function resendOtp(e) {
+        e.preventDefault();
+        if (resendLink.classList.contains('disabled')) return;
+
+        const email = '{{ email }}';
+        fetch('{{ url_for("auth.resend_otp_route") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                flashMessage(data.message, 'success');
+                startTimer();
+            } else if (data.error) {
+                flashMessage(data.error, 'error');
+            }
+        })
+        .catch(() => {
+            flashMessage('Failed to resend OTP. Please try again.', 'error');
+        });
+    }
+
+    function flashMessage(message, category) {
+        const existing = document.querySelector('.flash-message');
+        if (existing) existing.remove();
+        
+        const div = document.createElement('div');
+        div.className = `alert alert-${category === 'error' ? 'danger' : 'success'} flash-message mt-3`;
+        div.role = 'alert';
+        div.textContent = message;
+        
+        const form = document.querySelector('.auth-form');
+        form.parentNode.insertBefore(div, form.nextSibling);
+        
+        setTimeout(() => div.remove(), 5000);
+    }
+
+    // Start timer on page load
+    startTimer();
+</script>
+{% endblock %}

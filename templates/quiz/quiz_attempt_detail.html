@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Attempt Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 text-gray-800">
+                Quiz Review: {{ quiz.title }}
+            </h1>
+
+            <p class="text-muted mb-0">
+                Score:
+                <strong class="{% if result.score >= 70 %}text-success{% else %}text-danger{% endif %}">
+                    {{ result.score }}%
+                </strong>
+            </p>
+        </div>
+
+        <div>
+            {% if user.role == 'instructor' %}
+                <a href="{{ url_for('instructor_ui.quiz_results') }}"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Results
+                </a>
+            {% else %}
+                <a href="{{ url_for('quiz.view_my_results', course_id=course_id) }}"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to My Results
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 bg-white"
+         style="border-radius: 12px;">
+
+        <h4 class="mb-4">Questions Breakdown</h4>
+
+        {% for q in questions %}
+
+            {% set opts = q.get_options() %}
+
+            {# Get the student's selected option.
+               quiz.html submits 0-based indexes: 0, 1, 2, 3 #}
+            {% set chosen_idx_str = answers.get(q.id|string) %}
+            {% set chosen_idx = chosen_idx_str|int
+                if chosen_idx_str is not none else none %}
+
+            {# Find the actual correct option using is_correct #}
+            {% set ns = namespace(correct_idx=none) %}
+
+            {% for opt in opts %}
+                {% if opt.is_correct %}
+                    {% set ns.correct_idx = loop.index0 %}
+                {% endif %}
+            {% endfor %}
+
+            {% set correct_idx = ns.correct_idx %}
+
+            {# Determine correctness #}
+            {% set is_correct = (
+                chosen_idx is not none
+                and correct_idx is not none
+                and chosen_idx == correct_idx
+            ) %}
+
+            <div class="card p-3 mb-3 border
+                {% if is_correct %}
+                    border-success bg-success-subtle
+                {% else %}
+                    border-danger bg-danger-subtle
+                {% endif %}">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <h5 class="h6 mb-2">
+                        Question {{ loop.index }}: {{ q.prompt }}
+                    </h5>
+
+                    {% if is_correct %}
+                        <span class="badge bg-success text-white">
+                            Correct
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger text-white">
+                            Incorrect
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <div class="mt-2">
+
+                    {% for opt in opts %}
+
+                        {% set option_idx = loop.index0 %}
+
+                        <div class="p-2 my-1 rounded border d-flex justify-content-between align-items-center
+
+                            {% if opt.is_correct and option_idx == chosen_idx %}
+                                bg-success text-white border-success
+
+                            {% elif opt.is_correct %}
+                                bg-success text-white border-success
+
+                            {% elif option_idx == chosen_idx %}
+                                bg-danger text-white border-danger
+
+                            {% else %}
+                                bg-white text-dark
+                            {% endif %}">
+
+                            <span>{{ opt.option }}</span>
+
+                            {% if opt.is_correct and option_idx == chosen_idx %}
+
+                                <span class="small fw-bold">
+                                    (Your Choice &amp; Correct)
+                                </span>
+
+                            {% elif opt.is_correct %}
+
+                                <span class="small fw-bold">
+                                    (Correct Answer)
+                                </span>
+
+                            {% elif option_idx == chosen_idx %}
+
+                                <span class="small fw-bold">
+                                    (Your Choice)
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ===== Auth Page Layout ===== */
+    .auth-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        background-color: #f4f5f7;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem 2.25rem;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    /* ===== Header ===== */
+    .auth-header {
+        text-align: left;
+        margin-bottom: 1.75rem;
+    }
+
+    .auth-logo {
+        font-size: 1.5rem;
+        color: #2563eb;
+        margin-bottom: 0.75rem;
+    }
+
+    .auth-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: #111827;
+    }
+
+    .auth-subtitle {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    /* ===== Form ===== */
+    .auth-form .form-group {
+        margin-bottom: 1.1rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.4rem;
+        display: inline-block;
+    }
+
+    .text-muted {
+        font-weight: 400;
+        font-size: 0.85rem;
+    }
+
+    /* ===== Input group (icon + field) ===== */
+    .auth-form .input-group {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .auth-form .input-group:focus-within {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .auth-form .input-group-text {
+        background: #f9fafb;
+        border: none;
+        border-right: 1px solid #e5e7eb;
+        color: #9ca3af;
+        width: 42px;
+        justify-content: center;
+    }
+
+    .auth-form .form-control,
+    .auth-form .form-select {
+        border: none;
+        box-shadow: none;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .auth-form .form-control:focus,
+    .auth-form .form-select:focus {
+        box-shadow: none;
+    }
+
+    .toggle-password {
+        border: none;
+        background: #f9fafb;
+        border-left: 1px solid #e5e7eb;
+        color: #9ca3af;
+    }
+
+    .toggle-password:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .form-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 0.35rem;
+    }
+
+    /* ===== Submit button ===== */
+    .auth-form .btn-primary {
+        width: 100%;
+        padding: 0.7rem;
+        font-weight: 600;
+        border-radius: 8px;
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .auth-form .btn-primary:hover {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    /* ===== Footer ===== */
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .auth-footer a {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card panel">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join today. A verification OTP will be sent to your email.</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="post" class="auth-form" novalidate>
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" id="full_name" name="full_name" class="form-control" placeholder="Your Name"
+                         required autocomplete="name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com"
+                        required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="At least 8 characters" minlength="8" required autocomplete="new-password">
+                    <button type="button" class="btn toggle-password" data-target="password" aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <div class="form-text">Must be at least 8 characters long</div>
+            </div>
+
+            <div class="form-group">
+                <label for="education" class="form-label">Education <span class="text-muted">(Optional)</span></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+                    <input type="text" id="education" name="education" class="form-control"
+                        placeholder="e.g., BSc Computer Science" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Register As</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-people"></i></span>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="student" selected>Student</option>
+                        <option value="instructor">Instructor</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg mt-2">
+                <i class="bi bi-envelope-fill me-1"></i> Send OTP & Register
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login_jwt') }}">Sign in</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.dataset.target);
+            var icon = btn.querySelector('i');
+            var isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+            btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        });
+    });
+</script>
+{% endblock %}

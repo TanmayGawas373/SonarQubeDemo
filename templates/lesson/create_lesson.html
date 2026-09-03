@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Add Lesson — {{ module.title }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">Add Lesson</h1>
+        <p class="text-muted mb-0">
+            Add a lesson to <strong>{{ module.title }}</strong>
+        </p>
+    </div>
+
+    <!-- Lesson Form Card -->
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <form action="{{ url_for('lesson.create_lesson', module_id=module.id) }}" method="post">
+
+                        <!-- Lesson Title -->
+                        <div class="mb-3">
+                            <label for="title" class="form-label fw-semibold">
+                                Lesson Title
+                            </label>
+
+                            <input type="text" id="title" name="title" class="form-control"
+                                placeholder="Enter lesson title" required>
+                        </div>
+
+                        <!-- Lesson Content -->
+                        <div class="mb-3">
+                            <label for="content" class="form-label fw-semibold">
+                                Lesson Content
+                            </label>
+
+                            <textarea id="content" name="content" class="form-control" rows="6"
+                                placeholder="Enter lesson content"></textarea>
+                        </div>
+
+                        <!-- Lesson Order -->
+                        <div class="mb-4">
+                            <label for="order" class="form-label fw-semibold">
+                                Lesson Order
+                            </label>
+
+                            <input type="number" id="order" name="order" class="form-control"
+                                placeholder="Enter lesson order" value="0" min="0">
+
+                            <div class="form-text">
+                                Use the order to control where this lesson appears.
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2">
+
+                            <button type="submit" class="btn btn-primary">
+                                Add Lesson
+                            </button>
+
+                            <a href="{{ url_for('course.course_detail', course_id=module.course_id) }}"
+                                class="btn btn-outline-secondary">
+                                Back to Course
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

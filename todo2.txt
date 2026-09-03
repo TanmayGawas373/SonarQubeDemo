@@ -1,0 +1,15 @@
+view and update profile for all roles
+IMPO:
+IMPO: only admin and teachers can register -> students have to be created by admin/instructor
+IMPO: @role_required("admin", "instructor") which would wrap the @jwt_required()
+IMPO: create classes for services and dao
+
+STUDENT:
+- add already enrolled if clicked (handling exception)
+- only top 4 course progress and only latest 4 quiz performance in student dashboard
+- separate your courses with custom view progress
+- separate quiz performance
+- fix take quiz
+
+INSTRUCTOR:
+- update / delete for courses, modules, lessons, materials

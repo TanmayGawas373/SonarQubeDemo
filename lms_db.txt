@@ -1,0 +1,244 @@
+from config.db import db
+
+class Course(db.Model):
+    __tablename__ = 'courses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Relationships
+    modules = db.relationship('Module', backref='course', lazy='joined', cascade='all, delete-orphan')
+    enrollments = db.relationship('Enrollment', back_populates='course', lazy='joined', cascade='all, delete-orphan')
+
+    def __repr__(self) -> str:
+        return f"<Course {self.id} {self.title}>"
+
+    def to_dict(self):
+        return {
+            "title":self.title,
+            "description":self.description,
+            "instructor_id":self.instructor_id,
+            "modules":self.modules,
+            "enrollments":self.enrollments
+        }
+
+# models/enrollment.py
+"""Enrollment model linking a student (user) to a course.
+Only a student role may create an enrollment; an instructor or admin can view
+all enrollments for a course. The model stores timestamps for audit purposes.
+"""
+
+from config.db import db
+
+class Enrollment(db.Model):
+    __tablename__ = "enrollments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    enrolled_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Relationships (optional, but handy for eager loading)
+    user = db.relationship("User", backref="enrollments", lazy="joined")
+    course = db.relationship("Course", back_populates="enrollments", lazy="joined")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "course_id", name="uq_user_course"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Enrollment u={self.user_id} c={self.course_id}>"
+
+    def to_dict(self):
+        return {
+            "user_id":self.user_id,
+            "course_id":self.course_id,
+            "course":self.course.to_dict(),
+            "user":self.user.to_dict()
+        }
+
+# models/lesson_completion.py
+
+from config.db import db
+from datetime import datetime
+
+class LessonCompletion(db.Model):
+    __tablename__ = 'lesson_completions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self) -> str:
+        return f"<LessonCompletion s={self.student_id} l={self.lesson_id}>"
+
+from config.db import db
+
+class Lesson(db.Model):
+    __tablename__ = 'lessons'
+
+    id = db.Column(db.Integer, primary_key=True)
+    module_id = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=True)
+    order = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self) -> str:
+        return f"<Lesson {self.id} {self.title}>"
+
+
+from config.db import db
+
+class Material(db.Model):
+    __tablename__ = 'materials'
+
+    id = db.Column(db.Integer, primary_key=True)
+    module_id = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
+    file_path = db.Column(db.String(500), nullable=False)
+    file_type = db.Column(db.String(50), nullable=False)
+    uploaded_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    uploaded_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def __repr__(self) -> str:
+        return f"<Material {self.id} {self.file_path}>"
+
+from config.db import db
+
+class Module(db.Model):
+    __tablename__ = 'modules'
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    order = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Relationships
+    lessons = db.relationship('Lesson', backref='module', lazy='joined', cascade='all, delete-orphan')
+    materials = db.relationship('Material', backref='module', lazy='joined', cascade='all, delete-orphan')
+
+    def __repr__(self) -> str:
+        return f"<Module {self.id} {self.title}>"
+
+# models/progress.py
+"""Progress model aggregating lesson completions and quiz results per student per course."""
+
+from config.db import db
+
+class Progress(db.Model):
+    __tablename__ = 'progress'
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    completion_percent = db.Column(db.Float, nullable=False, default=0.0)
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    def __repr__(self) -> str:
+        return f"<Progress s={self.student_id} c={self.course_id} {self.completion_percent}%>"
+
+# models/question.py
+"""Question model for a quiz.
+Supports multiple‑choice style with a list of options stored as JSON.
+"""
+
+from config.db import db
+import json
+
+class Question(db.Model):
+    __tablename__ = "questions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey("quizzes.id"), nullable=False)
+    prompt = db.Column(db.Text, nullable=False)
+    # Stored as JSON string: [{"option": "A", "is_correct": true}, ...]
+    options_json = db.Column(db.Text, nullable=False)
+
+    def set_options(self, options: list):
+        """Serialize a list of option dictionaries to JSON string."""
+        self.options_json = json.dumps(options)
+
+    def get_options(self):
+        return json.loads(self.options_json)
+
+    def __repr__(self) -> str:
+        return f"<Question {self.id} quiz={self.quiz_id}>"
+
+# models/quiz_result.py
+"""QuizResult stores a student's attempt and score.
+`answers_json` holds a mapping of question_id → selected option index.
+"""
+
+from config.db import db
+import json
+
+class QuizResult(db.Model):
+    __tablename__ = "quiz_results"
+
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey("quizzes.id"), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    score = db.Column(db.Float, nullable=False)
+    submitted_at = db.Column(db.DateTime, server_default=db.func.now())
+    answers_json = db.Column(db.Text, nullable=False)  # JSON dict {question_id: chosen_index}
+
+    def set_answers(self, answers: dict):
+        self.answers_json = json.dumps(answers)
+
+    def get_answers(self):
+        return json.loads(self.answers_json)
+
+    def __repr__(self) -> str:
+        return f"<QuizResult {self.id} student={self.student_id} score={self.score}>"
+
+# models/quiz.py
+"""Quiz model representing a set of questions belonging to a course.
+Each quiz is owned by an instructor (user) and tied to a course.
+"""
+
+from config.db import db
+
+class Quiz(db.Model):
+    __tablename__ = "quizzes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    # Relationships
+    questions = db.relationship("Question", backref="quiz", lazy="joined", cascade="all, delete-orphan")
+    results = db.relationship("QuizResult", backref="quiz", lazy="joined", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"<Quiz {self.id} {self.title}>"
+# models/user.py
+
+from config.db import db
+from flask_login import UserMixin
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='student')
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def get_id(self):
+        return str(self.id)
+
+    def to_dict(self):
+        return {
+            "id":self.id,
+            "email":self.email,
+            "role":self.role,
+            "created_at":self.created_at
+        }
+

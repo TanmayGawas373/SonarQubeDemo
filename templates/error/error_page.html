@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .error-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 120px);
+        padding: 2rem 1rem;
+    }
+
+    /* For non-logged-in users, take up full screen */
+    .not-logged-in .error-container {
+        min-height: 100vh;
+        background-color: var(--bg-page);
+    }
+
+    .error-card {
+        width: 100%;
+        max-width: 500px;
+        padding: 3rem 2.25rem;
+        text-align: center;
+        border-radius: var(--radius-lg);
+        background: var(--bg-surface);
+        box-shadow: var(--shadow-lg);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .error-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .error-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--text-4xl);
+        font-weight: var(--font-bold);
+        color: var(--color-danger);
+        background-color: var(--color-danger-light);
+        width: 100px;
+        height: 100px;
+        border-radius: var(--radius-full);
+        margin-bottom: var(--space-6);
+        animation: pulse-danger 2s infinite;
+    }
+
+    .error-badge.warning {
+        color: var(--color-warning-dark);
+        background-color: var(--color-warning-light);
+        animation: pulse-warning 2s infinite;
+    }
+
+    .error-badge.info {
+        color: var(--color-secondary);
+        background-color: var(--color-secondary-light);
+        animation: pulse-info 2s infinite;
+    }
+
+    .error-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+        margin-bottom: var(--space-4);
+    }
+
+    .error-desc {
+        font-size: var(--text-base);
+        color: var(--text-secondary);
+        margin-bottom: var(--space-8);
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: var(--space-4);
+        justify-content: center;
+    }
+
+    .error-actions .btn {
+        padding: 0.65rem 1.25rem;
+        font-weight: var(--font-semibold);
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+    }
+
+    @keyframes pulse-danger {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+
+    @keyframes pulse-warning {
+        0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 193, 7, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+    }
+
+    @keyframes pulse-info {
+        0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="{% if not g.current_user %}not-logged-in{% endif %}">
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-badge {% if code == 404 %}info{% elif code == 403 or code == 401 %}warning{% endif %}">
+                {% if code == 404 %}
+                    <i class="bi bi-search"></i>
+                {% elif code == 403 or code == 401 %}
+                    <i class="bi bi-shield-slash"></i>
+                {% else %}
+                    <i class="bi bi-exclamation-triangle"></i>
+                {% endif %}
+            </div>
+            
+            <h1 class="error-title">
+                {% if code == 404 %}
+                    Page Not Found
+                {% elif code == 403 %}
+                    Access Forbidden
+                {% elif code == 401 %}
+                    Unauthorized Access
+                {% elif code == 400 %}
+                    Bad Request
+                {% else %}
+                    An Error Occurred ({{ code }})
+                {% endif %}
+            </h1>
+            
+            <p class="error-desc">{{ message }}</p>
+            
+            <div class="error-actions">
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Go Back
+                </button>
+                <a href="{{ url_for('dashboard.home') }}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i> Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

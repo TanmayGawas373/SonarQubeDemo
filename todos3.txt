@@ -1,0 +1,17 @@
+only courses belonging to the instructor should be able to edit/delete
+for student -> if already enrolled
+bulk import / export
+redis
+pool
+type hints
+
+CASCADING ON DELETE FOR COURSES
+redirect after update delete
+
+attempts limit for quizzes
+
+remove unnecessary files
+
+fix ui
+
+learn code

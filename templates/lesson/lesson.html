@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h1 class="fw-bold mb-2">{{ lesson.title }}</h1>
+        <p class="text-muted mb-0">
+            Lesson
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="lesson-content">
+                {{ lesson.content|safe }}
+            </div>
+
+        </div>
+    </div>
+
+    {% if g.current_user and g.current_user.role == 'student' %}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                <div>
+                    <h5 class="fw-semibold mb-1">
+                        Completed this lesson?
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Mark this lesson as completed to track your progress.
+                    </p>
+                </div>
+
+                <form action="{{ url_for(
+                        'lesson.complete_lesson',
+                        module_id=lesson.module_id,
+                        lesson_id=lesson.id
+                    ) }}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-success">
+                        ✓ Mark Complete
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

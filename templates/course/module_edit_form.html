@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Module — {{ course.title }}{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+    <h1>Edit Module</h1>
+    <p>{{ course.title }}</p>
+</section>
+
+<section class="panel">
+
+    <form
+        id="editmoduleForm"
+        class="stack"
+        onsubmit="updatemodule(event)"
+    >
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Module title"
+            value="{{ module.title }}"
+            required
+        >
+
+        <input
+            type="number"
+            id="order"
+            name="order"
+            placeholder="Order"
+            value="{{ module.order }}"
+        >
+
+        <button
+            type="submit"
+            id="updateButton"
+        >
+            <i class="bi bi-save me-1"></i>
+            Update Module
+        </button>
+
+    </form>
+
+    <a
+        class="button-link"
+        href="{{ url_for('course.course_detail', course_id=course.id) }}"
+    >
+        Back to Course
+    </a>
+
+</section>
+
+
+<script>
+
+async function updatemodule(event) {
+
+    event.preventDefault();
+
+    const button = document.getElementById("updateButton");
+
+    const title = document
+        .getElementById("title")
+        .value
+        .trim();
+
+    const order = document
+        .getElementById("order")
+        .value;
+
+
+    // Validate title
+    if (!title) {
+        alert("Module title is required.");
+        return;
+    }
+
+
+    const payload = {
+        title: title,
+        order: Number(order) || 0
+    };
+
+
+    button.disabled = true;
+
+    button.innerHTML = `
+        <span
+            class="spinner-border spinner-border-sm me-1"
+            role="status"
+        ></span>
+        Updating...
+    `;
+
+
+    try {
+
+        const response = await fetch(
+            "{{ url_for('module.update_module', course_id=course.id, module_id=module.id) }}",
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                credentials: "include",
+
+                body: JSON.stringify(payload)
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "Failed to update module."
+            );
+
+            return;
+        }
+
+
+        alert(
+            data.message ||
+            "Module updated successfully."
+        );
+
+
+        // Redirect back to course page
+        window.location.href =
+            "{{ url_for('course.course_detail', course_id=course.id) }}";
+
+
+    } catch (error) {
+
+        console.error(
+            "Update module error:",
+            error
+        );
+
+        alert(
+            "Something went wrong while updating the module."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerHTML = `
+            <i class="bi bi-save me-1"></i>
+            Update Module
+        `;
+    }
+
+}
+
+</script>
+
+{% endblock %}
+

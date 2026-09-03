@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ quiz.title }} · LMS</title>
+
+    <!-- Bootstrap 5 (CSS + Icons) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #14213d;
+            --accent: #2e7d6b;
+            --accent-soft: #e6f0ee;
+            --page-bg: #f5f6f8;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            background-color: var(--page-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .topbar {
+            background-color: var(--sidebar-bg);
+            padding: 0.85rem 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        .question-card .q-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--accent-soft);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .question-card p.prompt {
+            font-size: 1.05rem;
+            font-weight: 650;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .option-row {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .option-row:hover {
+            border-color: var(--accent);
+            background-color: var(--accent-soft);
+            padding-left: 1.25rem;
+        }
+
+        .option-row.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-soft);
+            box-shadow: 0 0 0 2px rgba(46, 125, 107, 0.2);
+            padding-left: 1.25rem;
+            font-weight: 600;
+        }
+
+        .option-row input[type="radio"] {
+            accent-color: var(--accent);
+            width: 1.15rem;
+            height: 1.15rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin: 0;
+            order: -1;
+        }
+
+        .option-row label {
+            font-size: 0.95rem;
+            color: #111827;
+            margin-bottom: 0;
+            cursor: pointer;
+            flex: 1 1 auto;
+            user-select: none;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(46, 125, 107, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .btn-accent:hover {
+            background-color: #256657;
+            border-color: #256657;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(46, 125, 107, 0.2);
+        }
+
+        .submit-bar {
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(to top, var(--page-bg) 60%, transparent);
+            padding: 1.5rem 0 1rem;
+            margin-top: 1rem;
+            z-index: 100;
+        }
+
+        /* Result Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .modal-header {
+            border-bottom: none;
+            padding: 2rem 2rem 1rem;
+        }
+
+        .modal-body {
+            padding: 1rem 2rem 2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar d-flex align-items-center gap-2">
+        <a href="{{ url_for('dashboard.home') }}" class="text-decoration-none d-flex align-items-center gap-2">
+            <span class="brand-mark">LMS</span>
+            <span class="text-white fw-semibold">Quiz Portal</span>
+        </a>
+    </header>
+
+    <div class="page-wrap">
+
+        <section class="page-header mb-4">
+            <h1>{{ quiz.title }}</h1>
+            <p class="text-muted"><i class="bi bi-info-circle me-1"></i>Please select one option for each question
+                below.</p>
+        </section>
+
+        <form id="quiz-form">
+            {% for question in questions %}
+            <div class="question-card">
+                <p class="prompt"><span class="q-label">{{ loop.index }}</span> {{ question.prompt }}</p>
+                {% for opt in question.get_options() %}
+                <div class="option-row" onclick="selectOption(this)">
+                    <input type="radio" name="q{{ question.id }}" value="{{ loop.index0 }}"
+                        id="q{{ question.id }}_{{ loop.index0 }}"
+                        onclick="event.stopPropagation(); syncOptionClass(this)">
+                    <label for="q{{ question.id }}_{{ loop.index0 }}">{{ opt.option }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="submit-bar text-end">
+                <button type="submit" class="btn btn-accent px-5">Submit Answers</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal fade" id="resultModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header text-center d-block">
+                    <h3 class="modal-title fw-bold" id="resultModalLabel">Quiz Completed!</h3>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="score-circle mb-4 mx-auto d-flex align-items-center justify-content-center"
+                        style="width: 120px; height: 120px; border-radius: 50%; font-size: 2.25rem; font-weight: 800;">
+                        <span id="score-text">0%</span>
+                    </div>
+                    <h4 id="status-text" class="fw-bold mb-3"></h4>
+                    <p class="text-muted mb-4" id="feedback-text"></p>
+                    <a href="{{ url_for('dashboard.home') }}" class="btn btn-accent w-100 py-2">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectOption(row) {
+            const radio = row.querySelector('input[type="radio"]');
+            radio.checked = true;
+            syncOptionClass(radio);
+        }
+
+        function syncOptionClass(radio) {
+            const parentCard = radio.closest('.question-card');
+            parentCard.querySelectorAll('.option-row').forEach(row => {
+                row.classList.remove('selected');
+            });
+            radio.closest('.option-row').classList.add('selected');
+        }
+
+        document.getElementById('quiz-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const data = {};
+            const form = new FormData(e.target);
+            for (const [name, value] of form.entries()) {
+                const qid = name.substring(1); // strip leading 'q'
+                data[qid] = parseInt(value);
+            }
+
+            try {
+                const response = await fetch('{{ url_for('quiz.attempt_quiz', course_id=quiz.course_id, quiz_id=quiz.id) }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                // Show modal results
+                const scoreCircle = document.querySelector('.score-circle');
+                const scoreText = document.getElementById('score-text');
+                const statusText = document.getElementById('status-text');
+                const feedbackText = document.getElementById('feedback-text');
+
+                scoreText.textContent = Math.round(result.score) + '%';
+
+                if (result.score >= 70) {
+                    scoreCircle.style.background = 'rgba(46, 125, 107, 0.1)';
+                    scoreCircle.style.color = 'var(--accent)';
+                    statusText.textContent = 'Passed!';
+                    statusText.className = 'fw-bold mb-3 text-success';
+                    feedbackText.textContent = 'Congratulations! You have demonstrated a solid understanding of the concepts.';
+                } else {
+                    scoreCircle.style.background = 'rgba(220, 53, 69, 0.1)';
+                    scoreCircle.style.color = '#dc3545';
+                    statusText.textContent = 'Failed';
+                    statusText.className = 'fw-bold mb-3 text-danger';
+                    feedbackText.textContent = 'Do not worry! Review the materials and try again to improve your score.';
+                }
+
+                const myModal = new bootstrap.Modal(document.getElementById('resultModal'));
+                myModal.show();
+            } catch (err) {
+                console.error(err);
+                alert('There was an error submitting the quiz. Please try again.');
+            }
+        });
+    </script>
+</body>
+
+</html>

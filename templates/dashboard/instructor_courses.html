@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Your Courses{% endblock %}
+{% block content %}
+<div class="container-fluid">
+
+    <div class="page-header">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">Your Courses</h1>
+                <p class="page-subtitle">Manage modules, lessons, and quizzes for courses you teach.</p>
+            </div>
+            <div class="page-actions">
+                <a href="{{ url_for('instructor_ui.create_course') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create Course
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h2 class="card-header-title">My Courses</h2>
+
+            <div class="d-flex align-items-center gap-3">
+                <form method="get" action="{{ url_for('instructor_ui.courses') }}" class="position-relative" style="max-width: 320px; width: 100%;">
+                    <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                    <input type="text" name="search" value="{{ search or '' }}" class="form-control form-control-sm ps-5" placeholder="Search courses..." style="padding-left: 2.25rem;">
+                    {% if search %}
+                    <a href="{{ url_for('instructor_ui.courses') }}" class="position-absolute text-muted" style="right: 12px; top: 50%; transform: translateY(-50%); text-decoration: none;">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                    {% endif %}
+                </form>
+                <span class="badge badge-primary">{{ total }} total</span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            {% if taught_courses %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Course Title</th>
+                            <th>Description</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in taught_courses %}
+                        <tr>
+                            <td class="ps-4 fw-semibold text-primary">{{ course.title }}</td>
+                            <td class="text-muted">{{ course.description or 'No description provided.' }}</td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-2 flex-wrap">
+                                    <a href="{{ url_for('course.course_detail', course_id=course.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </a>
+                                    <a href="{{ url_for('quiz.create_quiz', course_id=course.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-question-circle me-1"></i>Create Quiz
+                                    </a>
+                                    <a href="{{ url_for('admin_course.edit_admin_course', course_id=course.id) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <form action="{{ url_for('admin_course.delete_admin_course', course_id=course.id) }}" method="post" onsubmit="return confirm('Delete this course?');" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash me-1"></i>Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer & Pagination -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 border-top bg-light">
+                <span class="text-muted small">
+                    Showing {{ (page - 1) * 10 + 1 }}–{{ (page - 1) * 10 + taught_courses | length }} of {{ total }}
+                </span>
+
+                {% if total_pages > 1 %}
+                <nav aria-label="Course pagination">
+                    <ul class="pagination pagination-sm m-0">
+                        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('instructor_ui.courses', page=page-1, search=search) if page > 1 else '#' }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                        {% elif p == 1 or p == total_pages or (p >= page - 1 and p <= page + 1) %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('instructor_ui.courses', page=p, search=search) }}">{{ p }}</a>
+                        </li>
+                        {% elif p == page - 2 or p == page + 2 %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% endif %}
+                        {% endfor %}
+
+                        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                            <a class="page-link" href="{{ url_for('instructor_ui.courses', page=page+1, search=search) if page < total_pages else '#' }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+
+            {% else %}
+            <div class="empty-state py-5">
+                <i class="bi bi-journal-x empty-state-icon"></i>
+                <h4 class="empty-state-title">No Courses Found</h4>
+                <p class="empty-state-text">
+                    {% if search %}No courses match "{{ search }}". Try different keywords.
+                    {% else %}You are not teaching any courses yet.{% endif %}
+                </p>
+                <a href="{{ url_for('instructor_ui.create_course') }}" class="btn btn-primary empty-state-action">Create your first course</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

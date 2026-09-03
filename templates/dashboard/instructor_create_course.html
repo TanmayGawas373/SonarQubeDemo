@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Create Course{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 800px;">
+    <div class="mb-4">
+        <a href="{{ url_for('instructor_ui.dashboard') }}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-header-title">Create New Course</h2>
+            <p class="card-header-subtitle">Provide details below to publish a new course on the learning portal.</p>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('course.create_course') }}" method="post" class="d-flex flex-column gap-4">
+                <div class="form-group">
+                    <label for="title" class="form-label">Course Title</label>
+                    <input type="text" id="title" name="title" class="form-control" placeholder="e.g., Introduction to Python" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-control" placeholder="Provide a detailed description of what students will learn..." rows="5"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i> Create and Publish
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

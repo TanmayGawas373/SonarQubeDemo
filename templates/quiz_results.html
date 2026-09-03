@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}My Quiz Results{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">My Quiz Results</h1>
+                <p class="page-subtitle">View your performance across all attempted quizzes.</p>
+            </div>
+            <div class="page-actions">
+                <a href="{{ url_for('course.list_courses') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Courses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="d-flex gap-2">
+                <div class="position-relative flex-grow-1">
+                    <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+                    <input type="text" name="search" class="form-control ps-5" placeholder="Search quizzes..." value="{{ search|default('') }}">
+                </div>
+                <button type="submit" class="btn btn-primary px-4">Search</button>
+                {% if search %}
+                <a href="{{ url_for('quiz.view_my_results', course_id=course_id) }}" class="btn btn-outline-secondary">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h2 class="card-header-title">Attempts History</h2>
+        </div>
+        <div class="card-body p-0">
+            {% if results_data %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Quiz Title</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Submitted At</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results_data %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-semibold text-primary">Quiz #{{ r.quiz_id }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold {% if r.score >= 70 %}text-success{% else %}text-danger{% endif %}">{{ r.score }}%</span>
+                            </td>
+                            <td>
+                                {% if r.score >= 70 %}
+                                <span class="badge bg-success text-white">Passed</span>
+                                {% else %}
+                                <span class="badge bg-danger text-white">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted" style="font-size: var(--text-sm);">
+                                {{ r.submitted_at }}
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{{ url_for('quiz.review_quiz_result', course_id=r.course_id, quiz_id=r.quiz_id, result_id=r.result_id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state py-5">
+                <i class="bi bi-trophy empty-state-icon"></i>
+                <h4 class="empty-state-title">No Results Found</h4>
+                <p class="empty-state-text">{% if search %}No quiz results match your search keywords.{% else %}You haven't attempted any quizzes yet.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if total_pages >= 1 %}
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
+        <span class="text-muted small">
+            Page {{ page }} of {{ total_pages }}
+        </span>
+
+        {% if total_pages > 1 %}
+        <nav aria-label="Quiz results pagination">
+            <ul class="pagination pagination-sm m-0">
+                <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('quiz.view_my_results', course_id=course_id, page=page-1, search=search) if page > 1 else '#' }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                {% elif p == 1 or p == total_pages or (p >= page - 1 and p <= page + 1) %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('quiz.view_my_results', course_id=course_id, page=p, search=search) }}">{{ p }}</a>
+                </li>
+                {% elif p == page - 2 or p == page + 2 %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('quiz.view_my_results', course_id=course_id, page=page+1, search=search) if page < total_pages else '#' }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

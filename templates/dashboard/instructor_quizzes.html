@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Quiz Results{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">Quiz Results</h1>
+                <p class="page-subtitle">Monitor quiz attempts and scores for your students.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <form method="get" class="mb-4 d-flex gap-2 flex-wrap">
+        <input type="text" name="search" class="form-control" placeholder="Search students..." value="{{ search|default('') }}" style="min-width: 250px;">
+        <button type="submit" class="btn btn-primary">Search</button>
+        {% if search %}
+        <a href="{{ url_for('instructor_ui.quiz_results') }}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </form>
+
+    <div class="card">
+        {% if results_data %}
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Quiz Title</th>
+                            <th>Course</th>
+                            <th>Score</th>
+                            <th>Submitted At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results_data %}
+                        <tr>
+                            <td class="fw-semibold">{{ result.student_email }}</td>
+                            <td>{{ result.quiz_title }}</td>
+                            <td>{{ result.course_title }}</td>
+                            <td>
+                                <span class="fw-bold {% if result.score >= 70 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ result.score }}%
+                                </span>
+                            </td>
+                            <td class="text-muted">{{ result.submitted_at }}</td>
+                            <td>
+                                <a href="{{ url_for('quiz.review_quiz_result', course_id=result.course_id, quiz_id=result.quiz_id, result_id=result.result_id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye me-1"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Footer & Pagination -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 border-top bg-light">
+            <span class="text-muted small">
+                Page {{ page }} of {{ total_pages }}
+            </span>
+
+            {% if total_pages > 1 %}
+            <nav aria-label="Quiz results pagination">
+                <ul class="pagination pagination-sm m-0">
+                    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('instructor_ui.quiz_results', page=page-1, search=search) if page > 1 else '#' }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    {% for p in range(1, total_pages + 1) %}
+                    {% if p == page %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p == 1 or p == total_pages or (p >= page - 1 and p <= page + 1) %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('instructor_ui.quiz_results', page=p, search=search) }}">{{ p }}</a>
+                    </li>
+                    {% elif p == page - 2 or p == page + 2 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('instructor_ui.quiz_results', page=page+1, search=search) if page < total_pages else '#' }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-question-circle empty-state-icon"></i>
+            <h4 class="empty-state-title">No Quiz Attempts</h4>
+            <p class="empty-state-text">No student quiz attempts recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

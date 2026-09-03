@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Instructor Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div>
+                <h1 class="page-title">Instructor Dashboard</h1>
+                <p class="page-subtitle">Welcome back, {{ user.get('full_name') or user['email'] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div class="stat-icon primary"><i class="bi bi-journal-bookmark"></i></div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Courses</p>
+                    <p class="stat-value">{{ stats.total_courses }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div class="stat-icon secondary"><i class="bi bi-people"></i></div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Students</p>
+                    <p class="stat-value">{{ stats.total_students }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div class="stat-icon info"><i class="bi bi-patch-question"></i></div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Quizzes</p>
+                    <p class="stat-value">{{ stats.total_quizzes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <div class="stat-icon warning"><i class="bi bi-trophy"></i></div>
+                <div class="stat-content">
+                    <p class="stat-label">Average Score</p>
+                    <p class="stat-value">{{ "%.1f"|format(stats.average_score or 0) }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <!-- Course Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">Course Performance</h2>
+            </div>
+            <div class="card-body">
+                {% if stats.course_performance %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Students</th>
+                                <th>Avg Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in stats.course_performance %}
+                            <tr>
+                                <td class="fw-semibold">{{ course.title }}</td>
+                                <td>{{ course.student_count }}</td>
+                                <td>{{ "%.1f"|format(course.avg_score or 0) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-graph-up empty-state-icon"></i>
+                    <h4 class="empty-state-title">No Data Available</h4>
+                    <p class="empty-state-text">Course performance data will appear here once students enroll and take quizzes.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quiz Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">Quiz Performance</h2>
+            </div>
+            <div class="card-body">
+                {% if stats.quiz_performance %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Quiz</th>
+                                <th>Attempts</th>
+                                <th>Avg Score</th>
+                                <th>Pass Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quiz in stats.quiz_performance %}
+                            <tr>
+                                <td class="fw-semibold">{{ quiz.title }}</td>
+                                <td>{{ quiz.attempts }}</td>
+                                <td>{{ "%.1f"|format(quiz.avg_score or 0) }}%</td>
+                                <td>{{ "%.1f"|format(quiz.pass_rate or 0) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-question-circle empty-state-icon"></i>
+                    <h4 class="empty-state-title">No Data Available</h4>
+                    <p class="empty-state-text">Quiz performance data will appear here once students attempt quizzes.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

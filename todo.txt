@@ -1,0 +1,76 @@
+add rag based chatbot if possible
+
+for instructor:
+- caching
+- seperate dashboard:
+┌─────────────────────────────────────────────┐
+│ INSTRUCTOR DASHBOARD                         │
+├──────────┬──────────────┬──────────┬─────────┤
+│ Courses  │ Students     │ Quizzes  │ Avg     │
+│ 4        │ 127          │ 15       │ 76%     │
+├──────────┴──────────────┴──────────┴─────────┤
+│ Course Performance                           │
+│ Course       Students    Avg Score           │
+│ Flask        45          82%                 │
+│ SQL          32          74%                 │
+├─────────────────────────────────────────────┤
+│ Quiz Performance                             │
+│ Quiz         Attempts    Avg     Pass Rate   │
+└─────────────────────────────────────────────┘
+
+- seperate create course dashboard
+- manage students enrolled in instructor's courses
+- check quiz results for Students
+- also modules(redirecting)
+- seperate 'your courses'
+
+for students
+- caching
+- seperate dashboard
+┌─────────────────────────────────────────────┐
+│ STUDENT DASHBOARD                            │
+├────────────┬────────────┬───────────────────┤
+│ Enrolled   │ Completed  │ Avg Quiz Score     │
+│ Courses    │ Courses    │                   │
+├────────────┴────────────┴───────────────────┤
+│ My Course Progress                           │
+│ Flask       ███████████████░░  85%           │
+│ SQL         ███████████░░░░░░  65%           │
+├─────────────────────────────────────────────┤
+│ Quiz Performance                             │
+│ Quiz       Score       Status                │
+│ Flask      85%         Passed                │
+│ SQL        72%         Passed                │
+└─────────────────────────────────────────────┘
+- better ui for quizzes
+
+for admin:
+- seperate DASHBOARD
+┌─────────────────────────────────────────────┐
+│ ADMIN DASHBOARD                              │
+├────────┬──────────┬────────────┬─────────────┤
+│ Users  │ Courses  │ Enrollments│ Quiz Attempts│
+│ 250    │ 32       │ 740        │ 2450        │
+├────────┴──────────┴────────────┴─────────────┤
+│ User Distribution                            │
+│ Students      █████████████████ 190          │
+│ Instructors   █████              55          │
+│ Admins        █                    5          │
+├─────────────────────────────────────────────┤
+│ Most Popular Courses                         │
+│ 1. Flask              120 students           │
+│ 2. SQL                 98 students           │
+│ 3. React               87 students           │
+├─────────────────────────────────────────────┤
+│ Quiz Analytics                               │
+│ Avg Score: 76%    Pass Rate: 81%             │
+└─────────────────────────────────────────────┘
+- seperate student and instructor management
+
+
+NEW :
+- SUPER ADMIN
+- COMPULSORILY CREATE V2 - JSON based APIs - just json version of the current APIs
+    - in v1 - cookie store      - in v2 - request header
+- auth_code (device)
+- service_principle (machine-machine)

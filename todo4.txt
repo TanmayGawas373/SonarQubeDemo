@@ -1,0 +1,8 @@
+CASCADING
+db seeding
+
+ui :
+- add module
+- add lesson
+- mark complete
+- progress
