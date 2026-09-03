@@ -37,7 +37,7 @@ pipeline {
             steps{
                 script {
                     def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarCloud'){
+                    withSonarQubeEnv('SonarQube'){
                         // -Dsonar.qualitygate.wait=false prevents waiting for a webhook callback
                         bat "\"${scannerHome}\\bin\\sonar-scanner.bat\" -Dsonar.qualitygate.wait=false"
                     }
