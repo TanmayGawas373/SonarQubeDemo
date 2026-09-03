@@ -29,6 +29,7 @@ pipeline {
                 bat """
                     "${env.PYTHON_PATH}" --version
                     "${env.PYTHON_PATH}" -m pip install -r requirements.txt
+                    "${env.PYTHON_PATH}" -m pytest -v
                 """
             }
         }
@@ -41,6 +42,14 @@ pipeline {
                         // -Dsonar.qualitygate.wait=false prevents waiting for a webhook callback
                         bat "\"${scannerHome}\\bin\\sonar-scanner.bat\" -Dsonar.qualitygate.wait=false"
                     }
+                }
+            }
+        }
+
+        stage('Quality Gate'){
+            steps{
+                timeout(time: 2, unit: 'MINUTES'){
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
