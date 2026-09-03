@@ -29,7 +29,7 @@ pipeline {
                 bat """
                     "${env.PYTHON_PATH}" --version
                     "${env.PYTHON_PATH}" -m pip install -r requirements.txt
-                    "${env.PYTHON_PATH}" -m pytest Devops-proj -v
+                    "${env.PYTHON_PATH}" -m pytest -v
                 """
             }
         }
