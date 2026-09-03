@@ -29,73 +29,73 @@ pipeline {
                 bat """
                     "${env.PYTHON_PATH}" --version
                     "${env.PYTHON_PATH}" -m pip install -r Devops-proj\\requirements.txt
-                    cd Devops-proj
-                    "${env.PYTHON_PATH}" -m pytest -v
+                    "${env.PYTHON_PATH}" -m pytest Devops-proj -v
                 """
             }
         }
 
         stage('Build Docker Image') {
-    steps {
-        bat 'docker build -t tanmaigawas/flask-app:latest .'
-    }
-}
+            steps {
+                bat 'docker build -t tanmaigawas/flask-app:latest .'
+            }
+        }
+
         stage('Push to Docker Hub') {
-    steps {
-        withCredentials([
-            usernamePassword(
-                credentialsId: 'dockerhub-credentials',
-                usernameVariable: 'DOCKER_USER',
-                passwordVariable: 'DOCKER_PASS'
-            )
-        ]) {
-            bat '''
-                set "DOCKER_CONFIG=%WORKSPACE%\\.docker"
-                if not exist "%DOCKER_CONFIG%" mkdir "%DOCKER_CONFIG%"
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    bat '''
+                        set "DOCKER_CONFIG=%WORKSPACE%\\.docker"
+                        if not exist "%DOCKER_CONFIG%" mkdir "%DOCKER_CONFIG%"
 
-                docker login -u "%DOCKER_USER%" --password "%DOCKER_PASS%"
+                        docker login -u "%DOCKER_USER%" --password "%DOCKER_PASS%"
 
-                docker push tanmaigawas/flask-app:latest
+                        docker push tanmaigawas/flask-app:latest
 
-                docker logout
-                rmdir /s /q "%DOCKER_CONFIG%"
-            '''
+                        docker logout
+                        rmdir /s /q "%DOCKER_CONFIG%"
+                    '''
+                }
+            }
         }
     }
-}
-    }
 
-post {
-    success {
-        echo 'Pipeline completed successfully!'
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
 
-        mail(
-            to: 'gawastanmay373@gmail.com',
-            subject: "SUCCESS ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
+            mail(
+                to: 'gawastanmay373@gmail.com',
+                subject: "SUCCESS ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
 Jenkins build successful!
 
 Job: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
 URL: ${env.BUILD_URL}
 """
-        )
-    }
+            )
+        }
 
-    failure {
-        echo 'Pipeline failed!'
+        failure {
+            echo 'Pipeline failed!'
 
-        mail(
-            to: 'gawastanmay373@gmail.com',
-            subject: "FAILED ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
+            mail(
+                to: 'gawastanmay373@gmail.com',
+                subject: "FAILED ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
 Jenkins build failed!
 
 Job: ${env.JOB_NAME}
 Build: #${env.BUILD_NUMBER}
 URL: ${env.BUILD_URL}
 """
-        )
+            )
+        }
     }
-}
 }
