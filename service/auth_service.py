@@ -4,7 +4,7 @@ from utils.logger import log_general_action
 from flask_login import logout_user as flask_logout_user
 from utils.jwt_util import create_access_token
 from utils.send_email import send_otp_email, verify_otp as verify_otp_func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config.db import db
 
 
@@ -39,7 +39,7 @@ class AuthService:
             otp_hash, otp = send_otp_email(email)
             if otp_hash:
                 existing_user.otp_hash = otp_hash
-                existing_user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+                existing_user.otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
                 from flask import current_app
                 if current_app and current_app.config.get('TESTING'):
                     unverified_emails = {'verify@example.com', 'resend@example.com', 'unverified@example.com', 'login@example.com', 'login2@example.com', 'me@example.com', 'logout@example.com'}
@@ -55,7 +55,7 @@ class AuthService:
         otp_hash, otp = send_otp_email(email)
         if otp_hash:
             user.otp_hash = otp_hash
-            user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+            user.otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
             from flask import current_app
             if current_app and current_app.config.get('TESTING'):
                 unverified_emails = {'verify@example.com', 'resend@example.com', 'unverified@example.com', 'login@example.com', 'login2@example.com', 'me@example.com', 'logout@example.com'}
@@ -74,7 +74,13 @@ class AuthService:
             raise ValueError('User already verified')
         if not user.otp_hash or not user.otp_expires_at:
             raise ValueError('No OTP found. Please request a new one.')
-        if datetime.utcnow() > user.otp_expires_at:
+        
+        # Ensure user.otp_expires_at is offset-aware when comparing
+        expires_at = user.otp_expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+            
+        if datetime.now(timezone.utc) > expires_at:
             raise ValueError('OTP has expired. Please request a new one.')
         if not verify_otp_func(otp_input, user.otp_hash):
             raise ValueError('Invalid OTP')
@@ -116,7 +122,7 @@ class AuthService:
         otp_hash, otp = send_otp_email(email)
         if otp_hash:
             user.otp_hash = otp_hash
-            user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+            user.otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
             db.session.commit()
             log_general_action(f"[OK] OTP resent for email {email}", "info")
             return user, 'OTP sent to email. Please verify.'
